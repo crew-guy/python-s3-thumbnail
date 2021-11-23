@@ -4,11 +4,13 @@ from PIL import Image, ImageOps
 import os
 
 s3 = boto3.client('s3')
+
+# As defined in our function environment vars in Lambda console or serverless.yml
 size = int(os.environ['THUMBNAIL_SIZE'])
 
 
 def s3_thumbnail_generator(event, context):
-    # parse event
+    #! parse event -> always do this to understand what you're dealing with
     print(event)
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = event['Records'][0]['s3']['object']['key']
@@ -51,6 +53,7 @@ def upload_to_s3(bucket, key, image):
     image.save(out_thumbnail, 'PNG')
     out_thumbnail.seek(0)
 
+    # Can do this only because we have given write-access-to-s3 to our lambda function
     response = s3.put_object(
         ACL='public-read',
         Body=out_thumbnail,
